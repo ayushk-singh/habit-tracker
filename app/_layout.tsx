@@ -21,6 +21,10 @@ export default function RootLayout() {
           <NativeTabs.Trigger.Label>Streaks</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon md="mode_heat" />
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="(ai)">
+          <NativeTabs.Trigger.Label>AI Insight</NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Icon md="smart_toy" />
+        </NativeTabs.Trigger>
       </NativeTabs>
       <StatusBar style="auto" />
     </>
