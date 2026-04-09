@@ -1,13 +1,13 @@
 import { HabitCard } from "@/components/habit-card";
 import { useStorage } from "@/hooks/use-storage";
 import { getTodayKey, type CompletionMap, type Habit } from "@/utils/habits";
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { Link } from "expo-router";
 import { Stack } from "expo-router/stack";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, {
-  FadeInDown,
-  LinearTransition,
+    FadeInDown,
+    LinearTransition,
 } from "react-native-reanimated";
 
 export default function TodayScreen() {

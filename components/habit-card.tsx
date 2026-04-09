@@ -1,17 +1,16 @@
 import type { Habit } from "@/utils/habits";
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import * as Haptics from "expo-haptics";
 import { Pressable, Text, View } from "react-native";
 import Animated, {
-    Easing,
-    FadeIn,
-    LinearTransition,
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withTiming,
+  Easing,
+  FadeIn,
+  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
-
 
 type Props = {
   habit: Habit;
