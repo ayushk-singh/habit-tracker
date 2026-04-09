@@ -17,11 +17,37 @@ const ai = new GoogleGenAI({
   apiKey: process.env.EXPO_PUBLIC_GEMINI_KEY,
 });
 
-type Habit = {
-  id: string;
-  name: string;
-  completedDates: string[];
-};
+// helper functions
+function getDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function calculateStreak(
+  habitId: string,
+  completionMap: Record<string, string[]>
+): number {
+  let streak = 0;
+  const today = new Date();
+
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+
+    const key = getDateKey(d);
+    const completed = completionMap[key]?.includes(habitId);
+
+    if (completed) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
 
 export default function AIScreen() {
   const [messages, setMessages] = useState([
@@ -44,42 +70,64 @@ export default function AIScreen() {
     setLoading(true);
 
     try {
-      // ✅ Get & normalize habits (CRASH-PROOF)
+      // get correct data
       const rawHabits = storage.get<any[]>("habits", []);
+      const completionMap = storage.get<Record<string, string[]>>(
+        "completions",
+        {}
+      );
 
-      const habits: Habit[] = rawHabits.map((h) => ({
-        id: h?.id ?? Date.now().toString(),
-        name: h?.name ?? "Unnamed habit",
-        completedDates: Array.isArray(h?.completedDates)
-          ? h.completedDates
-          : [],
-      }));
+      // build enriched habit data
+      const habits = rawHabits.map((h) => {
+        const streak = calculateStreak(h.id, completionMap);
 
-      console.log(habits)
+        const totalCompleted = Object.values(completionMap).filter((ids) =>
+          ids.includes(h.id)
+        ).length;
 
-      // ✅ Format habits safely
+        return {
+          id: h.id,
+          name: h.name,
+          streak,
+          totalCompleted,
+        };
+      });
+
+      console.log("AI HABITS:", habits);
+
+      //  format for AI
       const formattedHabits =
         habits.length > 0
           ? habits
-              .map((h) => {
-                const completed = h.completedDates.length;
-                return `- ${h.name}: ${completed} days completed`;
-              })
+              .map(
+                (h) =>
+                  `- ${h.name}: ${h.totalCompleted} days completed, current streak ${h.streak} days`
+              )
               .join("\n")
           : "No habits found.";
 
-      // ✅ AI prompt
+      const last7Days = Array.from({ length: 7 }).map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        const key = getDateKey(d);
+        const count = completionMap[key]?.length || 0;
+        return `${key}: ${count} habits done`;
+      });
+
       const prompt = `
 You are an AI assistant inside a habit tracker app.
 
 STRICT RULES:
 - Only answer questions related to habits, routines, productivity, or goals
-- If the question is unrelated, reply: "I'm here to help with your habits only 😊"
-- Use the user's habit data to give personalized insights
+- If unrelated, reply: "I'm here to help with your habits only 😊"
 - Keep answers short and helpful
+- Use streak + completion data for insights
 
 USER HABITS:
 ${formattedHabits}
+
+RECENT ACTIVITY (last 7 days):
+${last7Days.join("\n")}
 
 USER QUESTION:
 ${userMessage.text}
