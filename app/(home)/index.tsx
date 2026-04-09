@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 export default function TodayScreen() {
-  const [habits] = useStorage<Habit[]>("habits", []);
+  const [habits, setHabits] = useStorage<Habit[]>("habits", []);
   const [completions, setCompletions] = useStorage<CompletionMap>(
     "completions",
     {},
@@ -32,6 +32,17 @@ export default function TodayScreen() {
           ? dayCompletions.filter((id) => id !== habitId)
           : [...dayCompletions, habitId],
       };
+    });
+  };
+
+  const deleteHabit = (habitId: string) => {
+    setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
+    setCompletions((prev) => {
+      const newCompletions: CompletionMap = {};
+      for (const date in prev) {
+        newCompletions[date] = prev[date].filter((id) => id !== habitId);
+      }
+      return newCompletions;
     });
   };
 
@@ -74,7 +85,7 @@ export default function TodayScreen() {
             }}
           >
             <Text style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
-              Today's Progress
+              Today&apos;s Progress
             </Text>
             <Text
               style={{
@@ -162,6 +173,7 @@ export default function TodayScreen() {
                 habit={habit}
                 completed={todayCompletions.includes(habit.id)}
                 onToggle={() => toggleHabit(habit.id)}
+                onDelete={() => deleteHabit(habit.id)}
               />
             ))}
           </View>

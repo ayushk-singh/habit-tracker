@@ -17,11 +17,12 @@ type Props = {
   habit: Habit;
   completed: boolean;
   onToggle: () => void;
+  onDelete: () => void;
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function HabitCard({ habit, completed, onToggle }: Props) {
+export function HabitCard({ habit, completed, onToggle, onDelete }: Props) {
   const scale = useSharedValue(1);
   const checkScale = useSharedValue(completed ? 1 : 0);
 
@@ -123,6 +124,20 @@ export function HabitCard({ habit, completed, onToggle }: Props) {
           <FontAwesome5 name="check" color="#FFFFFF" size={14} />
         </Animated.View>
       </View>
+
+      <Pressable
+        onPress={onDelete}
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: 15,
+          backgroundColor: "#FF6B6B",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <FontAwesome5 name="trash" color="#FFFFFF" size={12} />
+      </Pressable>
     </AnimatedPressable>
   );
 }
